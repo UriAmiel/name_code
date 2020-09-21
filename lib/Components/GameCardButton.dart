@@ -14,12 +14,13 @@ class GameCardButton extends StatefulWidget {
 }
 
 class _GameCardButtonState extends State<GameCardButton> {
-  Color color;
+  bool _firstPress = true;
+  Color _color;
 
   @override
   void initState() {
     super.initState();
-    color = Colors.white;
+    _color = Colors.white;
   }
 
   @override
@@ -28,14 +29,17 @@ class _GameCardButtonState extends State<GameCardButton> {
       onPressed: () {
         setState(
           () {
-            MaterialColor currCardColor = widget.cardColor;
+            if (_firstPress) {
+              MaterialColor currCardColor = widget.cardColor;
 
-            widget.boardData.playTurn(currCardColor, context);
-            color = currCardColor;
+              widget.boardData.playTurn(currCardColor);
+              _color = currCardColor;
+              _firstPress = false;
+            }
           },
         );
       },
-      color: color,
+      color: _color,
       shape: RoundedRectangleBorder(
         side: BorderSide(color: Colors.teal),
       ),

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:three_words/three_words.dart';
 import 'Constats.dart';
 
-class BoardData {
+class BoardData extends ChangeNotifier {
   List<String> _wordsList;
   List<MaterialColor> _colorsList;
   bool _redTurn;
@@ -11,7 +11,12 @@ class BoardData {
   int _remainigBlueCards;
   int _noColorCards;
   // TO THINK: CHANGE NUMBER OF ASSAISIN CARDS DEPEND ON NUMBER OF TOTAL CARDS
-  int assasinCard = 1;
+  int assassinCard = 1;
+
+  String _winningTeam;
+  Color _winningColor;
+  bool _isSomeoneWon = false;
+  bool _isGameOver = false;
 
   BoardData(int numberOfWords) {
     // gets random english words with more than 3 letters
@@ -41,6 +46,18 @@ class BoardData {
     return _redTurn;
   }
 
+  String getWinningTeam() {
+    return this._winningTeam;
+  }
+
+  Color getWinningColor() {
+    return this._winningColor;
+  }
+
+  bool getSomeoneWon() {
+    return this._isSomeoneWon;
+  }
+
   void _randomizeColors(int numberOfWords) {
     this._colorsList = [];
 
@@ -55,7 +72,7 @@ class BoardData {
     for (int i = 0; i < _noColorCards; i++) {
       this._colorsList.add(whiteGray);
     }
-    for (int i = 0; i < assasinCard; i++) {
+    for (int i = 0; i < assassinCard; i++) {
       this._colorsList.add(black);
     }
 
@@ -67,7 +84,7 @@ class BoardData {
     int thirdOfCards = (numberOfWords / 3).round();
     this._remainigRedCards = thirdOfCards;
     this._remainigBlueCards = thirdOfCards;
-    this._noColorCards = thirdOfCards - assasinCard;
+    this._noColorCards = thirdOfCards - assassinCard;
 
     Random rand = Random();
     double zeroToOne = rand.nextDouble();
@@ -85,36 +102,71 @@ class BoardData {
     _redTurn = !_redTurn;
   }
 
-  void playTurn(MaterialColor currCardColor, BuildContext context) {
+  void checkForWin() {
+    if (this._remainigRedCards == 0) {
+      redWin();
+    }
+    if (this._remainigBlueCards == 0) {
+      blueWin();
+    }
+  }
+
+  void redWin() {
+    this._winningColor = redColor;
+    this._winningTeam = "Red";
+    endGame();
+  }
+
+  void blueWin() {
+    this._winningColor = blueColor;
+    this._winningTeam = "Blue";
+    endGame();
+  }
+
+  void endGame() {
+    this._isSomeoneWon = true;
+    this._isGameOver = true;
+  }
+
+  void playTurn(MaterialColor currCardColor) {
     // Red's turn
     if (_redTurn) {
-      print("This is Red's turn");
       // Red is correct
       if (currCardColor == redColor) {
-        print("Red is correct");
+        this._remainigRedCards--;
       }
-      // red is incorrect
+      // Red is incorrect
       else {
-        print("Red is incorrect");
-        print("Switching turns...");
-
+        // Red lost by guessing the assassin
+        if (currCardColor == black) {
+          blueWin();
+        }
+        if (currCardColor == blueColor) {
+          this._remainigBlueCards--;
+        }
         switchTurns();
       }
     }
     // Blue's turn
     else {
-      print("This is Blue's turn");
-
       // Blue is correct
       if (currCardColor == blueColor) {
-        print("Blue is correct");
+        this._remainigBlueCards--;
       }
       // Blue is incorrect
       else {
-        print("Blue is incorrect");
-        print("Switching turns...");
+        // Blue lost by guessing the assassin
+        if (currCardColor == black) {
+          redWin();
+        }
+        if (currCardColor == redColor) {
+          this._remainigRedCards--;
+        }
         switchTurns();
       }
     }
+    checkForWin();
+
+    notifyListeners();
   }
 }

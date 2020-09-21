@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+double upperRowFontSize = 20.0;
+
 const MaterialColor redColor = Colors.red;
 const MaterialColor blueColor = Colors.blue;
 

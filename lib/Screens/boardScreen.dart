@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:name_code/Components/ExpandedGridBoard.dart';
 import 'package:name_code/Components/UpperInfoRow.dart';
 import 'package:name_code/Utilities/BoardData.dart';
+import 'package:provider/provider.dart';
 
 class BoardScreen extends StatefulWidget {
   final int columns;
@@ -25,23 +26,26 @@ class _BoardScreenState extends State<BoardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: UpperInfoRow(boardData: _boardData),
-            ),
-            Expanded(
-              flex: 10,
-              child: ExpandedGridBoard(
-                columns: widget.columns,
-                rows: widget.rows,
-                boardData: _boardData,
+        child: ChangeNotifierProvider(
+          create: (context) => _boardData,
+          child: Column(
+            children: [
+              Expanded(
+                child: UpperInfoRow(),
               ),
-            ),
-            Expanded(
-              child: Row(),
-            ),
-          ],
+              Expanded(
+                flex: 10,
+                child: ExpandedGridBoard(
+                  columns: widget.columns,
+                  rows: widget.rows,
+                  boardData: _boardData,
+                ),
+              ),
+              Expanded(
+                child: Row(),
+              ),
+            ],
+          ),
         ),
       ),
     );
